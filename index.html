@@ -54,10 +54,6 @@
     .progress-ring-wrap { position: relative; width: 56px; height: 56px; margin-left: auto; }
     .progress-ring-wrap svg { transform: rotate(-90deg); }
     .progress-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; font-weight: 600; color: var(--text); }
-    /* Tabs */
-    .tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 1.25rem; }
-    .tab { flex: 1; padding: 7px; text-align: center; font-size: 12px; font-weight: 500; color: var(--text2); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
-    .tab.active { background: white; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
     /* Cards */
     .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; margin-bottom: 12px; }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -77,15 +73,28 @@
     .badge-green { background: var(--green-light); color: var(--green); }
     .badge-amber { background: var(--amber-light); color: var(--amber); }
     .badge-blue { background: var(--blue-light); color: var(--blue); }
-    /* English section */
-    .script-input { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 12px; color: var(--text); background: var(--bg); resize: vertical; min-height: 72px; margin-top: 8px; font-family: inherit; outline: none; }
-    .script-input:focus { border-color: var(--green); }
+    /* Buttons */
     .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
     .btn-green { background: var(--green); color: white; }
     .btn-green:hover { background: #0F6E56; }
     .btn-outline { background: white; color: var(--text2); border: 0.5px solid var(--border2); }
     .btn-outline:hover { background: var(--surface2); }
     .btn-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    /* Chinese patterns */
+    .pattern-card { background: var(--surface2); border-radius: var(--radius-sm); padding: 1.5rem 1.25rem; text-align: center; }
+    .pattern-kr { font-size: 18px; font-weight: 600; color: var(--text); line-height: 1.4; margin-bottom: 4px; }
+    .pattern-hint { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
+    /* 버그 수정: CSS에서만 display: none; 을 관리하도록 함 */
+    .pattern-answer { font-size: 20px; color: var(--green); font-weight: 600; margin-top: 16px; display: none; }
+    .pattern-answer.show { display: block; }
+    .pattern-pinyin { font-size: 13px; color: var(--text2); margin-top: 8px; display: none; }
+    .pattern-pinyin.show { display: block; }
+    .pattern-count { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+    /* Inputs */
+    .script-input { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 12px; color: var(--text); background: var(--bg); resize: vertical; min-height: 72px; margin-top: 8px; font-family: inherit; outline: none; }
+    .script-input:focus { border-color: var(--green); }
+    .input-sm { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); padding: 6px 8px; font-size: 12px; color: var(--text); background: white; font-family: inherit; outline: none; }
+    .input-sm:focus { border-color: var(--green); }
     /* Timer */
     .timer-display { text-align: center; padding: 1.5rem 0 1rem; }
     .timer-ring-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 12px; }
@@ -99,17 +108,6 @@
     .hm-cell { height: 18px; border-radius: 3px; background: var(--surface2); border: 0.5px solid var(--border); }
     .hm-cell.done { background: var(--green); border-color: var(--green); }
     .hm-cell.today { border: 2px solid var(--blue); }
-    /* Chinese patterns */
-    .pattern-card { background: var(--surface2); border-radius: var(--radius-sm); padding: 1rem 1.25rem; text-align: center; }
-    .pattern-kr { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
-    .pattern-hint { font-size: 12px; color: var(--text3); margin-bottom: 12px; }
-    .pattern-answer { font-size: 16px; color: var(--green); font-weight: 500; margin-top: 8px; display: none; }
-    .pattern-answer.show { display: block; }
-    .pattern-pinyin { font-size: 13px; color: var(--text2); margin-top: 4px; display: none; }
-    .pattern-pinyin.show { display: block; }
-    .pattern-count { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
-    .input-sm { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); padding: 6px 8px; font-size: 12px; color: var(--text); background: white; font-family: inherit; outline: none; }
-    .input-sm:focus { border-color: var(--green); }
     /* News / memo */
     .news-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 0.5px solid var(--border); }
     .news-row:last-of-type { border-bottom: none; }
@@ -314,10 +312,11 @@
         <div class="pattern-count" id="pattern-idx-label">패턴을 불러오는 중입니다...</div>
         
         <div class="pattern-card" id="pattern-display">
-          <div class="pattern-kr" id="pattern-question" style="font-size:18px; font-weight:600; color:var(--text); line-height: 1.4;">패턴을 불러와주세요</div>
+          <div class="pattern-kr" id="pattern-question">패턴을 불러와주세요</div>
           <div class="pattern-hint">↑ 이 문장을 중국어로 말해보세요</div>
-          <div class="pattern-answer" id="pattern-answer" style="font-size:20px; color:var(--green); font-weight:600; margin-top:16px; display:none;"></div>
-          <div class="pattern-pinyin" id="pattern-point" style="font-size:13px; color:var(--text2); margin-top:8px; display:none;"></div>
+          
+          <div class="pattern-answer" id="pattern-answer"></div>
+          <div class="pattern-pinyin" id="pattern-point"></div>
         </div>
 
         <div class="btn-row" style="justify-content:center; margin-top:10px;">
@@ -585,7 +584,7 @@ async function loadSheetsPatterns() {
   }
 }
 
-// CSV 파서 (헤더 행 필터링 기능 강화)
+// CSV 파서
 function parseCSV(str) {
   const arr = [];
   let quote = false;
@@ -613,7 +612,6 @@ function parseCSV(str) {
     const kr = (arr[i][2] || '').trim();
     const point = (arr[i][3] || '').trim();
     
-    // 불필요한 시트 제목(헤더)이나 빈 칸 필터링
     if (zh && kr && kr !== '의미 (Korean)' && kr !== '한국어 의미') {
       results.push({ zh, kr, point });
     }
@@ -625,7 +623,7 @@ let allPatterns = [];
 let currentPatternIdx = -1;
 let sheetsLoaded = false;
 
-// 발화 연습 로직 (한국어 제시 -> 중국어 정답)
+// 발화 연습 로직
 function nextPattern() {
   if (!allPatterns.length) return;
   document.getElementById('pattern-answer').classList.remove('show');
@@ -637,15 +635,9 @@ function nextPattern() {
   
   const p = allPatterns[idx];
   
-  // 한국어(C열)를 문제로 제시
   document.getElementById('pattern-question').textContent = p.kr || '(한국어 없음)';
-  
-  // 중국어(B열)를 정답으로 숨김
   document.getElementById('pattern-answer').textContent = p.zh || '(중국어 없음)';
-  
-  // 조동사/포인트(D열)를 힌트로 숨김
   document.getElementById('pattern-point').textContent = p.point || '';
-  
   document.getElementById('pattern-idx-label').textContent = `${idx + 1} / ${allPatterns.length} 번째 패턴`;
 }
 
