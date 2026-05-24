@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -664,7 +663,7 @@ function copyPrompt() {
 }
 
 // Chinese patterns — Google Sheets CSV
-const SHEET_CSV_URL = 'https://script.google.com/macros/s/AKfycbz2ECEqbkzbMnHSzxmRb1zDBWDRaK8lJ-75hnN1ctR5Ums4OSM5HuG5F0ACeii2kZBR/exec';
+const SHEET_CSV_URL = 'https://opensheet.elk.sh/1wlz_4PW9JqL14E34-oN6zHROIB-fpmefdX9fIC5Hez0/1';
 
 let allPatterns = [];
 let currentPatternIdx = -1;
@@ -687,10 +686,14 @@ async function loadSheetsPatterns() {
   const statusEl = document.getElementById('sheet-status');
   if (statusEl) statusEl.textContent = '불러오는 중...';
   try {
-    const res = await fetch(SHEET_CSV_URL);
+    const res = await fetch(SHEET_CSV_URL, {redirect: 'follow'});
     if (!res.ok) throw new Error('fetch failed');
     const data = await res.json();
-    allPatterns = data.filter(p => p.zh);
+    allPatterns = data.filter(p => p['문장 (Chinese + Pinyin)']).map(p => ({
+      zh: p['문장 (Chinese + Pinyin)'] || '',
+      kr: p['의미 (Korean)'] || '',
+      point: p['조동사/포인트'] || ''
+    }));
     sheetsLoaded = true;
     if (statusEl) statusEl.textContent = `구글시트에서 ${allPatterns.length}개 로드됨`;
     document.getElementById('cn-total-badge').textContent = `총 ${allPatterns.length}개`;
