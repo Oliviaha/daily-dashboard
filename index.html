@@ -514,7 +514,7 @@ function showPanel(name) {
   document.getElementById('panel-' + name).classList.add('active');
   const navMap = {overview:0, english:1, chinese:2, reading:3, news:4};
   document.querySelectorAll('.nav-item')[navMap[name]].classList.add('active');
-  if (name === 'chinese') { if (!sheetsLoaded) loadSheetsPatterns(); else renderPatternList(); }
+  if (name === 'chinese') { if (!sheetsLoaded) loadSheetsPatterns(); else { renderPatternList(); if (currentPatternIdx === -1) nextPattern(); } }
   if (name === 'reading') renderHeatmap2();
   if (name === 'news') renderNews();
 }
@@ -671,7 +671,8 @@ function loadSheetsPatterns() {
   if (statusEl) statusEl.textContent = `패턴 ${allPatterns.length}개 로드됨`;
   document.getElementById('cn-total-badge').textContent = `총 ${allPatterns.length}개`;
   document.getElementById('cn-count-badge').textContent = `${allPatterns.length}개 누적`;
-  if (allPatterns.length) nextPattern();
+  currentPatternIdx = -1;
+  nextPattern();
   renderPatternList();
 }
 
