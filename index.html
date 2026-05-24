@@ -151,6 +151,7 @@
 </head>
 <body>
 <div class="layout">
+  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="logo">루틴 대시보드</div>
     <div class="logo-sub" id="today-date"></div>
@@ -169,7 +170,9 @@
     </div>
   </aside>
 
+  <!-- Main -->
   <main class="main">
+    <!-- OVERVIEW PANEL -->
     <div class="panel active" id="panel-overview">
       <div class="page-header">
         <div>
@@ -189,6 +192,7 @@
       </div>
 
       <div class="grid2">
+        <!-- English quick -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><i class="ti ti-microphone"></i> 영어</div>
@@ -202,6 +206,7 @@
           </button>
         </div>
 
+        <!-- Chinese quick -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><i class="ti ti-language"></i> 중국어</div>
@@ -216,6 +221,7 @@
         </div>
       </div>
 
+      <!-- Reading quick -->
       <div class="card">
         <div class="card-header">
           <div class="card-title"><i class="ti ti-book"></i> 독서</div>
@@ -239,6 +245,7 @@
         </div>
       </div>
 
+      <!-- News quick -->
       <div class="card">
         <div class="card-header">
           <div class="card-title"><i class="ti ti-news"></i> 시사 & 메모</div>
@@ -252,6 +259,7 @@
         </button>
       </div>
 
+      <!-- Exercise -->
       <div class="card">
         <div class="card-header">
           <div class="card-title"><i class="ti ti-heart-rate-monitor"></i> 운동</div>
@@ -272,6 +280,7 @@
         </div>
       </div>
 
+      <!-- Summary -->
       <div class="summary-grid" style="margin-top: 4px;">
         <div class="stat-card"><div class="stat-num" id="s-done" style="color:var(--green);">0</div><div class="stat-label">완료 항목</div></div>
         <div class="stat-card"><div class="stat-num" id="s-left" style="color:var(--text2);">13</div><div class="stat-label">남은 항목</div></div>
@@ -279,6 +288,7 @@
       </div>
     </div>
 
+    <!-- ENGLISH PANEL -->
     <div class="panel" id="panel-english">
       <div class="page-header">
         <div><div class="page-title"><i class="ti ti-microphone" style="font-size:18px; color:var(--text3);"></i> 영어 복습</div></div>
@@ -310,6 +320,7 @@
       </div>
     </div>
 
+    <!-- CHINESE PANEL -->
     <div class="panel" id="panel-chinese">
       <div class="page-header">
         <div><div class="page-title"><i class="ti ti-language" style="font-size:18px; color:var(--text3);"></i> 중국어 패턴 연습</div></div>
@@ -328,12 +339,15 @@
           <span class="badge badge-blue" id="cn-total-badge">총 0개</span>
         </div>
         <div class="pattern-count" id="pattern-idx-label">패턴을 추가해서 연습을 시작하세요.</div>
+        
+        <!-- 수정된 플래시카드 화면 (중국어 문제 -> 한국어 정답) -->
         <div class="pattern-card" id="pattern-display">
-          <div class="pattern-kr" id="pattern-kr">패턴을 추가해주세요</div>
-          <div class="pattern-hint">↑ 이 문장을 중국어로 말해보세요</div>
-          <div class="pattern-answer" id="pattern-answer"></div>
-          <div class="pattern-pinyin" id="pattern-pinyin"></div>
+          <div class="pattern-kr" id="pattern-question" style="font-size:18px; font-weight:500; color:var(--text); margin-bottom:4px;">패턴을 추가해주세요</div>
+          <div class="pattern-hint">↑ 이 문장의 뜻을 한국어로 해석해보세요</div>
+          <div class="pattern-answer" id="pattern-answer" style="font-size:15px; color:var(--green); font-weight:500; margin-top:8px; display:none;"></div>
+          <div class="pattern-pinyin" id="pattern-point" style="font-size:12px; color:var(--text3); margin-top:2px; display:none;"></div>
         </div>
+
         <div class="btn-row" style="justify-content:center; margin-top:10px;">
           <button class="btn btn-outline" onclick="showAnswer()"><i class="ti ti-eye"></i> 정답 확인</button>
           <button class="btn btn-green" onclick="nextPattern()"><i class="ti ti-arrow-right"></i> 다음 문장</button>
@@ -351,6 +365,7 @@
       </div>
     </div>
 
+    <!-- READING PANEL -->
     <div class="panel" id="panel-reading">
       <div class="page-header">
         <div><div class="page-title"><i class="ti ti-book" style="font-size:18px; color:var(--text3);"></i> 독서 타이머</div></div>
@@ -396,6 +411,7 @@
       <div class="check-row" style="padding: 10px 0;"><span class="check-label" style="font-size:14px;">오늘 독서 완료</span><div class="cb" data-key="book_done" onclick="toggle(this)"></div></div>
     </div>
 
+    <!-- NEWS PANEL -->
     <div class="panel" id="panel-news">
       <div class="page-header">
         <div><div class="page-title"><i class="ti ti-news" style="font-size:18px; color:var(--text3);"></i> 시사 & 생각 메모</div></div>
@@ -425,6 +441,7 @@
         </div>
       </div>
 
+      <!-- Yesterday's reminder -->
       <div id="reminder-section" style="display:none;">
         <div class="card">
           <div class="card-header">
@@ -442,6 +459,7 @@
         </div>
       </div>
 
+      <!-- Past memos -->
       <div class="card">
         <div class="card-header"><div class="card-title"><i class="ti ti-history"></i> 지난 메모</div></div>
         <div id="past-memos" style="font-size:12px; color:var(--text2);">저장된 메모가 없습니다.</div>
@@ -621,7 +639,7 @@ function copyPrompt() {
 // CHINESE PATTERNS 연동 주소 바인딩
 const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR6vnaxL568nrop-zq1OQpGPo1NzOlB5Ga6v1sqosu-ZPkdF9oVnOgpAtfOfONKTeNf0HF3kawh9KzS/pub?gid=1299716647&single=true&output=csv";
 
-// 비동기 통신(Fetch)으로 구글 시트의 최신 CSV 데이터를 실시간으로 가져옵니다.
+// 비동기 통신(Fetch)
 async function loadSheetsPatterns() {
   const statusEl = document.getElementById('sheet-status');
   if (statusEl) statusEl.textContent = '구글시트 연동 중...';
@@ -642,32 +660,74 @@ async function loadSheetsPatterns() {
     renderPatternList();
 
   } catch (error) {
-    console.error('구글 시트 로드 실패, 백업 로컬 데이터 사용:', error);
-    if (statusEl) statusEl.textContent = '로컬 데이터 연동됨';
-    
-    // 네트워크 실패 시 대안책으로 코드 내부의 오프라인 데이터 배열 로드
-    allPatterns = CN_PATTERNS_DATA.filter(p => p.zh);
-    sheetsLoaded = true;
-    
-    if (allPatterns.length) nextPattern();
-    renderPatternList();
+    console.error('구글 시트 로드 실패:', error);
+    if (statusEl) statusEl.textContent = '연동 실패 - 확인 필요';
   }
 }
 
-// 오프라인 상태 혹은 통신장애 대비 백업용 데이터 배열 (Fallback)
-const CN_PATTERNS_DATA = [{"zh": "不一会儿，他就做完作业了。 (bù yí huìr, tā jiù zuò wán zuò yè le.)", "kr": "잠시 뒤에, 그는 숙제를 다 끝냈어.", "point": "就 (강조)"}];
-
-// CSV 파싱 규칙 함수
-function parseCSV(text) {
-  const lines = text.split('\n');
+// 강력하고 정밀한 CSV 파싱 규칙 (문장 내 쉼표, 줄바꿈 완벽 처리)
+function parseCSV(str) {
+  const arr = [];
+  let quote = false;
+  let row = 0, col = 0;
+  arr[row] = [];
+  arr[row][col] = '';
+  
+  for (let c = 0; c < str.length; c++) {
+    let cc = str[c], nc = str[c+1];
+    
+    // 큰따옴표 안의 내용일 경우 이스케이프 처리
+    if (cc === '"' && quote && nc === '"') {
+      arr[row][col] += cc;
+      c++; // 다음 따옴표 건너뛰기
+      continue;
+    }
+    if (cc === '"') {
+      quote = !quote;
+      continue;
+    }
+    // 쉼표가 따옴표 밖에서 나타날 경우에만 열 구분
+    if (cc === ',' && !quote) {
+      col++;
+      arr[row][col] = '';
+      continue;
+    }
+    // 행 구분
+    if (cc === '\r' && nc === '\n' && !quote) {
+      row++;
+      col = 0;
+      arr[row] = [];
+      arr[row][col] = '';
+      c++; 
+      continue;
+    }
+    if (cc === '\n' && !quote) {
+      row++;
+      col = 0;
+      arr[row] = [];
+      arr[row][col] = '';
+      continue;
+    }
+    if (cc === '\r' && !quote) {
+      row++;
+      col = 0;
+      arr[row] = [];
+      arr[row][col] = '';
+      continue;
+    }
+    arr[row][col] += cc;
+  }
+  
   const results = [];
-  for (let i = 1; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
-    // 간단한 CSV 파싱 (쉼표 기준 배열 분할 및 따옴표 정제)
-    const cols = lines[i].split(',').map(c => c.replace(/^"|"$/g, '').trim());
-    const zh = cols[1] || '';
-    const kr = cols[2] || '';
-    const point = cols[3] || '';
+  // 0번째 줄(헤더)은 제외하고 1부터 시작
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i].length < 2) continue;
+    
+    // B열(인덱스 1): 중국어, C열(인덱스 2): 한국어, D열(인덱스 3): 포인트
+    const zh = (arr[i][1] || '').trim();
+    const kr = (arr[i][2] || '').trim();
+    const point = (arr[i][3] || '').trim();
+    
     if (zh) results.push({ zh, kr, point });
   }
   return results;
@@ -677,27 +737,30 @@ let allPatterns = [];
 let currentPatternIdx = -1;
 let sheetsLoaded = false;
 
+// 문제-정답 로직 (중국어 문제 -> 정답확인 시 한국어 표시)
 function nextPattern() {
   if (!allPatterns.length) return;
-  // 클래스 가시성 초기화
   document.getElementById('pattern-answer').classList.remove('show');
-  document.getElementById('pattern-pinyin').classList.remove('show');
+  document.getElementById('pattern-point').classList.remove('show');
   
   let idx;
   do { idx = Math.floor(Math.random() * allPatterns.length); } while (allPatterns.length > 1 && idx === currentPatternIdx);
   currentPatternIdx = idx;
   
   const p = allPatterns[idx];
-  document.getElementById('pattern-kr').textContent = p.kr || '(한국어 없음)';
-  document.getElementById('pattern-answer').textContent = p.zh;
-  document.getElementById('pattern-pinyin').textContent = p.point || '';
+  // 문제 부분에 B열 (중국어) 세팅
+  document.getElementById('pattern-question').textContent = p.zh || '(중국어 없음)';
+  // 정답 부분에 C열 (한국어) 세팅
+  document.getElementById('pattern-answer').textContent = p.kr || '(한국어 없음)';
+  // 포인트 부분에 D열 세팅
+  document.getElementById('pattern-point').textContent = p.point || '';
   document.getElementById('pattern-idx-label').textContent = `${idx + 1} / ${allPatterns.length} 번째 패턴`;
 }
 
 function showAnswer() {
   document.getElementById('pattern-answer').classList.add('show');
-  if (document.getElementById('pattern-pinyin').textContent) {
-    document.getElementById('pattern-pinyin').classList.add('show');
+  if (document.getElementById('pattern-point').textContent) {
+    document.getElementById('pattern-point').classList.add('show');
   }
 }
 
@@ -706,8 +769,8 @@ function renderPatternList() {
   if (!allPatterns.length) { listEl.innerHTML = '패턴을 불러오지 못했습니다.'; return; }
   listEl.innerHTML = allPatterns.slice(0, 50).map((p, i) => `
     <div style="padding:7px 0; border-bottom:0.5px solid var(--border);">
-      <div style="font-weight:500; color:var(--text); font-size:13px;">${p.kr || ''}</div>
-      <div style="color:var(--green); margin-top:2px; font-size:13px;">${p.zh}</div>
+      <div style="font-weight:500; color:var(--text); font-size:14px;">${p.zh}</div>
+      <div style="color:var(--green); margin-top:2px; font-size:13px;">${p.kr}</div>
       ${p.point ? `<div style="color:var(--text3); font-size:11px; margin-top:1px;">${p.point}</div>` : ''}
     </div>
   `).join('') + (allPatterns.length > 50 ? `<div style="font-size:11px; color:var(--text3); padding-top:8px;">+ ${allPatterns.length - 50}개 더 있음</div>` : '');
