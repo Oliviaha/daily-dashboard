@@ -565,9 +565,8 @@ function updateProgress() {
   document.getElementById('en-miss-count').textContent = `${missDays}일 밀림`;
 
   // Chinese count
-  const patterns = JSON.parse(localStorage.getItem('cn_patterns') || '[]');
-  document.getElementById('cn-count-badge').textContent = `${patterns.length}개 누적`;
-  document.getElementById('cn-total-badge').textContent = `총 ${patterns.length}개`;
+  document.getElementById('cn-count-badge').textContent = `${allPatterns.length}개 누적`;
+  document.getElementById('cn-total-badge').textContent = `총 ${allPatterns.length}개`;
 
   // Book badge
   const bookMin = parseInt(localStorage.getItem('book_today_min') || '0');
