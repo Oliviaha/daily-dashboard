@@ -663,8 +663,7 @@ function copyPrompt() {
 }
 
 // Chinese patterns — Google Sheets CSV
-const SHEET_ID = '1wlz_4PW9JqL14E34-oN6zHROIB-fpmefdX9fIC5Hez0';
-const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+const SHEET_CSV_URL = 'https://script.google.com/macros/s/AKfycbz2ECEqbkzbMnHSzxmRb1zDBWDRaK8lJ-75hnN1ctR5Ums4OSM5HuG5F0ACeii2kZBR/exec';
 
 let allPatterns = [];
 let currentPatternIdx = -1;
@@ -689,8 +688,8 @@ async function loadSheetsPatterns() {
   try {
     const res = await fetch(SHEET_CSV_URL);
     if (!res.ok) throw new Error('fetch failed');
-    const text = await res.text();
-    allPatterns = parseCSV(text);
+    const data = await res.json();
+    allPatterns = data.filter(p => p.zh);
     sheetsLoaded = true;
     if (statusEl) statusEl.textContent = `구글시트에서 ${allPatterns.length}개 로드됨`;
     document.getElementById('cn-total-badge').textContent = `총 ${allPatterns.length}개`;
@@ -698,8 +697,7 @@ async function loadSheetsPatterns() {
     if (allPatterns.length) nextPattern();
     renderPatternList();
   } catch(e) {
-    if (statusEl) statusEl.textContent = '로드 실패 — 시트 공개 설정을 확인해주세요';
-    if (statusEl) statusEl.style.color = 'var(--red)';
+    if (statusEl) { statusEl.textContent = '로드 실패 — 시트 공개 설정을 확인해주세요'; statusEl.style.color = 'var(--red)'; }
   }
 }
 
