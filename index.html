@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Routine Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface2: #f2f0ec;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --text: #1a1a18;
+    --text2: #6b6a66;
+    --text3: #a09f9b;
+    --green: #1D9E75;
+    --green-light: #E1F5EE;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --red: #A32D2D;
+    --red-light: #FCEBEB;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* Layout */
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  .sidebar { background: var(--surface); border-right: 0.5px solid var(--border); padding: 1.5rem 1rem; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .main { padding: 1.75rem 2rem; overflow-y: auto; }
+
+  /* Sidebar */
+  .logo { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
+  .logo-sub { font-size: 12px; color: var(--text3); margin-bottom: 1.5rem; }
+  .nav-section { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin: 1.25rem 0 0.5rem; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }
+  .nav-item:hover, .nav-item.active { background: var(--surface2); color: var(--text); }
+  .nav-item i { font-size: 16px; }
+  .streak-widget { background: var(--green-light); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: auto; }
+  .streak-num { font-size: 22px; font-weight: 600; color: var(--green); }
+  .streak-label { font-size: 11px; color: #0F6E56; margin-top: 1px; }
+  .week-dots { display: flex; gap: 4px; margin-top: 8px; }
+  .wdot { width: 20px; height: 20px; border-radius: 50%; background: white; border: 1.5px solid rgba(29,158,117,0.2); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--text3); font-weight: 500; }
+  .wdot.done { background: var(--green); border-color: var(--green); color: white; }
+  .wdot.today { border: 2px solid var(--green); color: var(--green); }
+
+  /* Main header */
+  .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+  .page-title { font-size: 20px; font-weight: 600; }
+  .page-date { font-size: 13px; color: var(--text3); margin-top: 2px; }
+  .overall-progress { text-align: right; }
+  .progress-ring-wrap { position: relative; width: 56px; height: 56px; margin-left: auto; }
+  .progress-ring-wrap svg { transform: rotate(-90deg); }
+  .progress-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px; font-weight: 600; color: var(--text); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 1.25rem; }
+  .tab { flex: 1; padding: 7px; text-align: center; font-size: 12px; font-weight: 500; color: var(--text2); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+  .tab.active { background: white; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  /* Cards */
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; margin-bottom: 12px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 6px; }
+  .card-title i { font-size: 15px; color: var(--text3); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Check rows */
+  .check-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 0.5px solid var(--border); }
+  .check-row:last-of-type { border-bottom: none; }
+  .check-label { font-size: 13px; color: var(--text2); }
+  .cb { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border2); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
+  .cb.on { background: var(--green); border-color: var(--green); }
+  .cb.on::after { content: ''; display: block; width: 9px; height: 6px; border-left: 2px solid white; border-bottom: 2px solid white; transform: rotate(-45deg) translateY(-1px); }
+
+  /* Badge */
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .badge-red { background: var(--red-light); color: var(--red); }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); }
+  .badge-blue { background: var(--blue-light); color: var(--blue); }
+
+  /* Alert strip */
+  .alert-strip { background: var(--red-light); border: 0.5px solid #F0997B; border-radius: var(--radius-sm); padding: 7px 10px; font-size: 12px; color: var(--red); display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+
+  /* English section */
+  .script-input { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 12px; color: var(--text); background: var(--bg); resize: vertical; min-height: 72px; margin-top: 8px; font-family: inherit; outline: none; }
+  .script-input:focus { border-color: var(--green); }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-green { background: var(--green); color: white; }
+  .btn-green:hover { background: #0F6E56; }
+  .btn-outline { background: white; color: var(--text2); border: 0.5px solid var(--border2); }
+  .btn-outline:hover { background: var(--surface2); }
+  .btn-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+
+  /* Timer */
+  .timer-display { text-align: center; padding: 1.5rem 0 1rem; }
+  .timer-ring-wrap { position: relative; width: 120px; height: 120px; margin: 0 auto 12px; }
+  .timer-ring-wrap svg { transform: rotate(-90deg); }
+  .timer-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .timer-num { font-size: 26px; font-weight: 600; color: var(--text); letter-spacing: -0.5px; }
+  .timer-sub { font-size: 10px; color: var(--text3); }
+  .timer-btns { display: flex; gap: 8px; justify-content: center; margin-top: 4px; }
+  .book-heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-top: 10px; }
+  .hm-label { font-size: 10px; color: var(--text3); text-align: center; }
+  .hm-cell { height: 18px; border-radius: 3px; background: var(--surface2); border: 0.5px solid var(--border); }
+  .hm-cell.done { background: var(--green); border-color: var(--green); }
+  .hm-cell.today { border: 2px solid var(--blue); }
+
+  /* Chinese patterns */
+  .pattern-card { background: var(--surface2); border-radius: var(--radius-sm); padding: 1rem 1.25rem; text-align: center; }
+  .pattern-kr { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .pattern-hint { font-size: 12px; color: var(--text3); }
+  .pattern-answer { font-size: 16px; color: var(--green); font-weight: 500; margin-top: 8px; display: none; }
+  .pattern-answer.show { display: block; }
+  .pattern-pinyin { font-size: 12px; color: var(--text3); margin-top: 2px; display: none; }
+  .pattern-pinyin.show { display: block; }
+  .pattern-count { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+  .add-pattern-form { margin-top: 12px; border-top: 0.5px solid var(--border); padding-top: 12px; }
+  .input-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .input-sm { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); padding: 6px 8px; font-size: 12px; color: var(--text); background: white; font-family: inherit; outline: none; }
+  .input-sm:focus { border-color: var(--green); }
+  .input-sm::placeholder { color: var(--text3); }
+
+  /* News / memo */
+  .news-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 0.5px solid var(--border); }
+  .news-row:last-of-type { border-bottom: none; }
+  .source-tag { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; flex-shrink: 0; }
+  .tag-yt { background: #FAECE7; color: #993C1D; }
+  .tag-nyt { background: var(--blue-light); color: var(--blue); }
+  .tag-cnn { background: var(--red-light); color: var(--red); }
+  .tag-etc { background: var(--surface2); color: var(--text2); }
+  .news-label { font-size: 13px; color: var(--text2); flex: 1; }
+  .memo-area { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 12px; color: var(--text); background: var(--bg); resize: vertical; min-height: 80px; margin-top: 10px; font-family: inherit; outline: none; }
+  .memo-area:focus { border-color: var(--green); }
+  .keyword-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: var(--blue-light); color: var(--blue); cursor: pointer; border: none; font-family: inherit; }
+  .chip.removable::after { content: ' ×'; }
+  .reminder-box { background: var(--amber-light); border: 0.5px solid #EF9F27; border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 10px; }
+  .reminder-title { font-size: 11px; font-weight: 600; color: var(--amber); margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+  .reminder-text { font-size: 12px; color: #633806; line-height: 1.5; }
+
+  /* Summary */
+  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 0.9rem; text-align: center; }
+  .stat-num { font-size: 24px; font-weight: 600; }
+  .stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* Section panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Progress bar */
+  .prog-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+  .prog-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.4s; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">루틴 대시보드</div>
+    <div class="logo-sub" id="today-date"></div>
+
+    <div class="nav-section">메뉴</div>
+    <div class="nav-item active" onclick="showPanel('overview')"><i class="ti ti-layout-dashboard"></i> 오늘 전체</div>
+    <div class="nav-item" onclick="showPanel('english')"><i class="ti ti-microphone"></i> 영어</div>
+    <div class="nav-item" onclick="showPanel('chinese')"><i class="ti ti-language"></i> 중국어</div>
+    <div class="nav-item" onclick="showPanel('reading')"><i class="ti ti-book"></i> 독서</div>
+    <div class="nav-item" onclick="showPanel('news')"><i class="ti ti-news"></i> 시사 & 메모</div>
+
+    <div style="margin-top: 1.5rem;">
+      <div class="streak-widget">
+        <div class="streak-num" id="sidebar-streak">3</div>
+        <div class="streak-label">일 연속 달성 🔥</div>
+        <div class="week-dots" id="week-dots"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- OVERVIEW PANEL -->
+    <div class="panel active" id="panel-overview">
+      <div class="page-header">
+        <div>
+          <div class="page-title">오늘의 루틴</div>
+          <div class="page-date" id="header-date"></div>
+        </div>
+        <div class="overall-progress">
+          <div class="progress-ring-wrap">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="23" fill="none" stroke="#f2f0ec" stroke-width="4"/>
+              <circle cx="28" cy="28" r="23" fill="none" stroke="#1D9E75" stroke-width="4"
+                stroke-linecap="round" stroke-dasharray="144.5" id="ring-fill" stroke-dashoffset="144.5"/>
+            </svg>
+            <div class="progress-center" id="ring-pct">0%</div>
+          </div>
+          <div style="font-size: 11px; color: var(--text3); margin-top: 4px; text-align: right;">전체 달성률</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <!-- English quick -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-microphone"></i> 영어</div>
+            <span class="badge badge-red" id="en-miss-badge">복습 밀림</span>
+          </div>
+          <div class="check-row"><span class="check-label">전화 수업 20분</span><div class="cb" data-key="en_class" onclick="toggle(this)"></div></div>
+          <div class="check-row"><span class="check-label">스크립트 분석</span><div class="cb" data-key="en_analyze" onclick="toggle(this)"></div></div>
+          <div class="check-row"><span class="check-label">수정사항 발화 연습</span><div class="cb" data-key="en_practice" onclick="toggle(this)"></div></div>
+          <button class="btn btn-green" style="width:100%; margin-top:10px; justify-content:center;" onclick="showPanel('english')">
+            <i class="ti ti-external-link"></i> 스크립트 분석하기 →
+          </button>
+        </div>
+
+        <!-- Chinese quick -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-language"></i> 중국어</div>
+            <span class="badge badge-blue" id="cn-count-badge">0개 누적</span>
+          </div>
+          <div class="check-row"><span class="check-label">전화 수업 30분</span><div class="cb" data-key="cn_class" onclick="toggle(this)"></div></div>
+          <div class="check-row"><span class="check-label">노트 정리</span><div class="cb" data-key="cn_notes" onclick="toggle(this)"></div></div>
+          <div class="check-row"><span class="check-label">패턴 발화 연습</span><div class="cb" data-key="cn_practice" onclick="toggle(this)"></div></div>
+          <button class="btn btn-outline" style="width:100%; margin-top:10px; justify-content:center;" onclick="showPanel('chinese')">
+            <i class="ti ti-cards"></i> 패턴 연습하기 →
+          </button>
+        </div>
+      </div>
+
+      <!-- Reading quick -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-book"></i> 독서</div>
+          <span class="badge" id="book-badge" style="background:var(--surface2); color:var(--text3);">오늘 0분</span>
+        </div>
+        <div class="grid2">
+          <div>
+            <div class="check-row"><span class="check-label">오늘 독서 완료</span><div class="cb" data-key="book_done" onclick="toggle(this)"></div></div>
+            <div class="prog-bar"><div class="prog-fill" id="book-prog" style="width:0%"></div></div>
+          </div>
+          <div>
+            <button class="btn btn-green" style="width:100%; justify-content:center;" onclick="showPanel('reading')">
+              <i class="ti ti-player-play"></i> 타이머 시작
+            </button>
+          </div>
+        </div>
+        <div class="book-heatmap" style="margin-top:12px;">
+          <div class="hm-label">월</div><div class="hm-label">화</div><div class="hm-label">수</div>
+          <div class="hm-label">목</div><div class="hm-label">금</div><div class="hm-label">토</div><div class="hm-label">일</div>
+          <div id="hm-cells" style="display:contents;"></div>
+        </div>
+      </div>
+
+      <!-- News quick -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-news"></i> 시사 & 메모</div>
+        </div>
+        <div class="news-row"><span class="source-tag tag-yt">유튜브</span><span class="news-label">한국경제 시청</span><div class="cb" data-key="news_yt" onclick="toggle(this)"></div></div>
+        <div class="news-row"><span class="source-tag tag-nyt">NYT</span><span class="news-label">뉴스레터 읽기</span><div class="cb" data-key="news_nyt" onclick="toggle(this)"></div></div>
+        <div class="news-row"><span class="source-tag tag-cnn">CNN</span><span class="news-label">뉴스레터 읽기</span><div class="cb" data-key="news_cnn" onclick="toggle(this)"></div></div>
+        <div class="news-row"><span class="source-tag tag-etc">기타</span><span class="news-label">아티클 / 생각 정리</span><div class="cb" data-key="news_etc" onclick="toggle(this)"></div></div>
+        <button class="btn btn-outline" style="margin-top:10px;" onclick="showPanel('news')">
+          <i class="ti ti-pencil"></i> 오늘 메모 기록하기 →
+        </button>
+      </div>
+
+      <!-- Yoga -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-heart-rate-monitor"></i> 운동</div>
+        </div>
+        <div class="grid2">
+          <div>
+            <div style="font-size:12px; color:var(--text3); margin-bottom:6px;">요가 (주 2-3회)</div>
+            <div style="display:flex; gap:6px;">
+              <div class="cb" data-key="yoga_1" onclick="toggle(this)" style="width:28px; height:28px; border-radius:6px; font-size:10px; color:var(--text3);">1</div>
+              <div class="cb" data-key="yoga_2" onclick="toggle(this)" style="width:28px; height:28px; border-radius:6px; font-size:10px; color:var(--text3);">2</div>
+              <div class="cb" data-key="yoga_3" onclick="toggle(this)" style="width:28px; height:28px; border-radius:6px; font-size:10px; color:var(--text3);">3</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px; color:var(--text3); margin-bottom:6px;">하체 순환 스트레칭</div>
+            <div class="check-row" style="border:none; padding:0;"><span class="check-label" style="font-size:12px;">오늘 완료</span><div class="cb" data-key="stretch" onclick="toggle(this)"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary-grid" style="margin-top: 4px;">
+        <div class="stat-card"><div class="stat-num" id="s-done" style="color:var(--green);">0</div><div class="stat-label">완료 항목</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-left" style="color:var(--text2);">13</div><div class="stat-label">남은 항목</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-streak" style="color:var(--amber);">3</div><div class="stat-label">연속 일수</div></div>
+      </div>
+    </div>
+
+    <!-- ENGLISH PANEL -->
+    <div class="panel" id="panel-english">
+      <div class="page-header">
+        <div><div class="page-title"><i class="ti ti-microphone" style="font-size:18px; color:var(--text3);"></i> 영어 복습</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">오늘 수업 체크</div></div>
+        <div class="check-row"><span class="check-label">전화 수업 20분 완료</span><div class="cb" data-key="en_class" onclick="toggle(this)"></div></div>
+        <div class="check-row"><span class="check-label">스크립트 Claude 분석 완료</span><div class="cb" data-key="en_analyze" onclick="toggle(this)"></div></div>
+        <div class="check-row"><span class="check-label">수정사항 발화 연습 완료</span><div class="cb" data-key="en_practice" onclick="toggle(this)"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-text-scan-2"></i> 스크립트 → Claude 분석</div>
+          <span class="badge badge-green">복습 루프</span>
+        </div>
+        <div style="font-size:12px; color:var(--text3); margin-bottom:6px;">오늘 수업 대화 스크립트를 아래에 붙여넣으면 Claude 분석 페이지로 바로 이동합니다.</div>
+        <textarea class="script-input" id="script-text" placeholder="수업 대화 스크립트를 여기에 붙여넣으세요...&#10;예) Teacher: How was your weekend?&#10;Me: I went to the mall and buyed some clothes..."></textarea>
+        <div class="btn-row">
+          <button class="btn btn-green" onclick="analyzeScript()"><i class="ti ti-brand-claude"></i> Claude로 분석하기 ↗</button>
+          <button class="btn btn-outline" onclick="copyPrompt()"><i class="ti ti-copy"></i> 프롬프트만 복사</button>
+        </div>
+        <div id="copy-msg" style="font-size:11px; color:var(--green); margin-top:6px; display:none;">✓ 클립보드에 복사됨</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="ti ti-history"></i> 최근 밀린 복습</div><span class="badge badge-red" id="en-miss-count">0일 밀림</span></div>
+        <div id="miss-list" style="font-size:12px; color:var(--text2); line-height:2;">기록 없음</div>
+      </div>
+    </div>
+
+    <!-- CHINESE PANEL -->
+    <div class="panel" id="panel-chinese">
+      <div class="page-header">
+        <div><div class="page-title"><i class="ti ti-language" style="font-size:18px; color:var(--text3);"></i> 중국어 패턴 연습</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">오늘 수업 체크</div></div>
+        <div class="check-row"><span class="check-label">전화 수업 30분</span><div class="cb" data-key="cn_class" onclick="toggle(this)"></div></div>
+        <div class="check-row"><span class="check-label">노트 정리</span><div class="cb" data-key="cn_notes" onclick="toggle(this)"></div></div>
+        <div class="check-row"><span class="check-label">패턴 발화 복습</span><div class="cb" data-key="cn_practice" onclick="toggle(this)"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-cards"></i> 랜덤 발화 연습</div>
+          <span class="badge badge-blue" id="cn-total-badge">총 0개</span>
+        </div>
+        <div class="pattern-count" id="pattern-idx-label">패턴을 추가해서 연습을 시작하세요.</div>
+        <div class="pattern-card" id="pattern-display">
+          <div class="pattern-kr" id="pattern-kr">패턴을 추가해주세요</div>
+          <div class="pattern-hint">↑ 이 문장을 중국어로 말해보세요</div>
+          <div class="pattern-answer" id="pattern-zh"></div>
+          <div class="pattern-pinyin" id="pattern-py"></div>
+        </div>
+        <div class="btn-row" style="justify-content:center; margin-top:10px;">
+          <button class="btn btn-outline" onclick="showAnswer()"><i class="ti ti-eye"></i> 정답 확인</button>
+          <button class="btn btn-green" onclick="nextPattern()"><i class="ti ti-arrow-right"></i> 다음 문장</button>
+        </div>
+
+        <div style="margin-top:12px; border-top:0.5px solid var(--border); padding-top:10px; display:flex; align-items:center; justify-content:space-between;">
+          <span id="sheet-status" style="font-size:12px; color:var(--text3);">구글시트 연동 중...</span>
+          <button class="btn btn-outline" onclick="loadSheetsPatterns()"><i class="ti ti-refresh"></i> 새로고침</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="ti ti-list"></i> 전체 패턴 목록</div></div>
+        <div id="pattern-list" style="font-size:12px; color:var(--text2);">아직 추가된 패턴이 없습니다.</div>
+      </div>
+    </div>
+
+    <!-- READING PANEL -->
+    <div class="panel" id="panel-reading">
+      <div class="page-header">
+        <div><div class="page-title"><i class="ti ti-book" style="font-size:18px; color:var(--text3);"></i> 독서 타이머</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">목표 시간 설정</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <input type="range" min="5" max="60" step="5" value="20" id="timer-goal" oninput="updateGoal(this.value)" style="flex:1;">
+          <span style="font-size:14px; font-weight:500; min-width:40px;" id="goal-label">20분</span>
+        </div>
+        <div class="timer-display">
+          <div class="timer-ring-wrap">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#f2f0ec" stroke-width="6"/>
+              <circle cx="60" cy="60" r="50" fill="none" stroke="#1D9E75" stroke-width="6"
+                stroke-linecap="round" stroke-dasharray="314.2" id="timer-ring" stroke-dashoffset="0"/>
+            </svg>
+            <div class="timer-center">
+              <div class="timer-num" id="timer-display">20:00</div>
+              <div class="timer-sub" id="timer-status">준비</div>
+            </div>
+          </div>
+          <div class="timer-btns">
+            <button class="btn btn-green" id="timer-btn" onclick="timerToggle()"><i class="ti ti-player-play" id="timer-icon"></i> 시작</button>
+            <button class="btn btn-outline" onclick="timerReset()"><i class="ti ti-refresh"></i> 초기화</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-calendar-stats"></i> 이번 주 독서 현황</div>
+        </div>
+        <div class="book-heatmap">
+          <div class="hm-label">월</div><div class="hm-label">화</div><div class="hm-label">수</div>
+          <div class="hm-label">목</div><div class="hm-label">금</div><div class="hm-label">토</div><div class="hm-label">일</div>
+          <div id="hm-cells2" style="display:contents;"></div>
+        </div>
+        <div style="font-size:12px; color:var(--text3); margin-top:10px; text-align:center;" id="week-reading-stat">이번 주 0일 완료</div>
+      </div>
+
+      <div class="check-row" style="padding: 10px 0;"><span class="check-label" style="font-size:14px;">오늘 독서 완료</span><div class="cb" data-key="book_done" onclick="toggle(this)"></div></div>
+    </div>
+
+    <!-- NEWS PANEL -->
+    <div class="panel" id="panel-news">
+      <div class="page-header">
+        <div><div class="page-title"><i class="ti ti-news" style="font-size:18px; color:var(--text3);"></i> 시사 & 생각 메모</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">오늘 읽기 체크</div></div>
+        <div class="news-row"><span class="source-tag tag-yt">유튜브</span><span class="news-label">한국경제 시청</span><div class="cb" data-key="news_yt" onclick="toggle(this)"></div></div>
+        <div class="news-row"><span class="source-tag tag-nyt">NYT</span><span class="news-label">뉴스레터 읽기</span><div class="cb" data-key="news_nyt" onclick="toggle(this)"></div></div>
+        <div class="news-row"><span class="source-tag tag-cnn">CNN</span><span class="news-label">뉴스레터 읽기</span><div class="cb" data-key="news_cnn" onclick="toggle(this)"></div></div>
+        <div class="news-row"><span class="source-tag tag-etc">기타</span><span class="news-label">아티클 / 생각 정리</span><div class="cb" data-key="news_etc" onclick="toggle(this)"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-pencil"></i> 오늘 배운 것 / 느낀 점</div>
+          <span class="badge badge-amber">자동 저장</span>
+        </div>
+        <textarea class="memo-area" id="daily-memo" placeholder="오늘 읽은 것에서 인상 깊었던 내용, 새로 알게 된 것, 생각나는 것 자유롭게..." oninput="saveMemo()"></textarea>
+        <div style="margin-top: 10px;">
+          <div style="font-size:12px; font-weight:500; color:var(--text2); margin-bottom:6px;">키워드 추가 (내일 리마인더용)</div>
+          <div style="display:flex; gap:8px;">
+            <input class="input-sm" id="keyword-input" placeholder="예: 연준 금리, ESG" style="flex:1;" onkeydown="if(event.key==='Enter') addKeyword()" />
+            <button class="btn btn-outline" onclick="addKeyword()"><i class="ti ti-plus"></i></button>
+          </div>
+          <div class="keyword-chips" id="keyword-chips"></div>
+        </div>
+      </div>
+
+      <!-- Yesterday's reminder -->
+      <div id="reminder-section" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="ti ti-bell-ringing"></i> 어제 키워드 리마인더</div>
+            <span class="badge badge-amber">복습 알림</span>
+          </div>
+          <div id="yesterday-keywords" class="keyword-chips" style="margin-bottom:10px;"></div>
+          <div class="reminder-box">
+            <div class="reminder-title"><i class="ti ti-bulb"></i> 오늘 생각해볼 질문</div>
+            <div class="reminder-text" id="reminder-text"></div>
+          </div>
+          <button class="btn btn-green" style="margin-top:10px;" onclick="openClaudeReminder()">
+            <i class="ti ti-brand-claude"></i> Claude에게 더 물어보기 ↗
+          </button>
+        </div>
+      </div>
+
+      <!-- Past memos -->
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="ti ti-history"></i> 지난 메모</div></div>
+        <div id="past-memos" style="font-size:12px; color:var(--text2);">저장된 메모가 없습니다.</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const TODAY = new Date().toISOString().split('T')[0];
+const YESTERDAY = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+function getStore() { try { return JSON.parse(localStorage.getItem('routine_db') || '{}'); } catch(e) { return {}; } }
+function setStore(db) { localStorage.setItem('routine_db', JSON.stringify(db)); }
+function getDay(date) { const db = getStore(); return db[date] || {}; }
+function setDay(date, data) { const db = getStore(); db[date] = data; setStore(db); }
+function todayData() { return getDay(TODAY); }
+function setToday(data) { setDay(TODAY, data); }
+
+// Date labels
+const DAYS_KR = ['일','월','화','수','목','금','토'];
+const d = new Date();
+document.getElementById('today-date').textContent = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${DAYS_KR[d.getDay()]}요일`;
+document.getElementById('header-date').textContent = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 ${DAYS_KR[d.getDay()]}요일`;
+
+// Panel nav
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  const navMap = {overview:0, english:1, chinese:2, reading:3, news:4};
+  document.querySelectorAll('.nav-item')[navMap[name]].classList.add('active');
+  if (name === 'chinese') { if (!sheetsLoaded) loadSheetsPatterns(); else renderPatternList(); }
+  if (name === 'reading') renderHeatmap2();
+  if (name === 'news') renderNews();
+}
+
+// Checkboxes
+const ALL_KEYS = ['en_class','en_analyze','en_practice','cn_class','cn_notes','cn_practice','book_done','news_yt','news_nyt','news_cnn','news_etc','yoga_1','yoga_2','yoga_3','stretch'];
+
+function toggle(el) {
+  el.classList.toggle('on');
+  const key = el.dataset.key;
+  const data = todayData();
+  data[key] = el.classList.contains('on');
+  setToday(data);
+  syncAllCheckboxes();
+  updateProgress();
+}
+
+function syncAllCheckboxes() {
+  const data = todayData();
+  document.querySelectorAll('.cb[data-key]').forEach(el => {
+    el.classList.toggle('on', !!data[el.dataset.key]);
+  });
+}
+
+function updateProgress() {
+  const data = todayData();
+  let done = ALL_KEYS.filter(k => data[k]).length;
+  const total = ALL_KEYS.length;
+  const pct = Math.round(done / total * 100);
+  document.getElementById('ring-pct').textContent = pct + '%';
+  const circ = 144.5;
+  document.getElementById('ring-fill').setAttribute('stroke-dashoffset', circ - (circ * pct / 100));
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-left').textContent = total - done;
+
+  // English miss badge
+  const db = getStore();
+  let missDays = 0;
+  for (let i = 1; i <= 7; i++) {
+    const past = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
+    const pd = db[past] || {};
+    if (!pd.en_practice) missDays++;
+    else break;
+  }
+  const missEl = document.getElementById('en-miss-badge');
+  if (missDays > 0) { missEl.textContent = `복습 ${missDays}일 밀림`; missEl.style.display = 'inline'; }
+  else { missEl.style.display = 'none'; }
+  document.getElementById('en-miss-count').textContent = `${missDays}일 밀림`;
+
+  // Chinese count
+  const patterns = JSON.parse(localStorage.getItem('cn_patterns') || '[]');
+  document.getElementById('cn-count-badge').textContent = `${patterns.length}개 누적`;
+  document.getElementById('cn-total-badge').textContent = `총 ${patterns.length}개`;
+
+  // Book badge
+  const bookMin = parseInt(localStorage.getItem('book_today_min') || '0');
+  const bookBadge = document.getElementById('book-badge');
+  if (data.book_done) { bookBadge.textContent = '완료 ✓'; bookBadge.className = 'badge badge-green'; }
+  else { bookBadge.textContent = `오늘 ${bookMin}분`; bookBadge.className = 'badge'; bookBadge.style.background = 'var(--surface2)'; bookBadge.style.color = 'var(--text3)'; }
+
+  renderHeatmap();
+  renderStreak();
+}
+
+// Heatmap
+function getWeekDates() {
+  const today = new Date();
+  const dow = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((dow + 6) % 7));
+  return Array.from({length: 7}, (_, i) => { const d = new Date(monday); d.setDate(monday.getDate() + i); return d.toISOString().split('T')[0]; });
+}
+
+function renderHeatmap() {
+  const db = getStore();
+  const dates = getWeekDates();
+  ['hm-cells','hm-cells2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '';
+    dates.forEach(date => {
+      const div = document.createElement('div');
+      div.className = 'hm-cell' + (db[date]?.book_done ? ' done' : '') + (date === TODAY ? ' today' : '');
+      el.appendChild(div);
+    });
+  });
+  const doneDays = dates.filter(d => getStore()[d]?.book_done).length;
+  const ws = document.getElementById('week-reading-stat');
+  if (ws) ws.textContent = `이번 주 ${doneDays}일 완료`;
+}
+
+function renderStreak() {
+  const db = getStore();
+  let streak = 0;
+  for (let i = 1; i <= 30; i++) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
+    const pd = db[d] || {};
+    const done = ALL_KEYS.filter(k => pd[k]).length;
+    if (done >= Math.floor(ALL_KEYS.length * 0.5)) streak++;
+    else break;
+  }
+  document.getElementById('sidebar-streak').textContent = streak;
+  document.getElementById('s-streak').textContent = streak;
+
+  const dates = getWeekDates();
+  const dotsEl = document.getElementById('week-dots');
+  const dayLabels = ['월','화','수','목','금','토','일'];
+  dotsEl.innerHTML = dates.map((date, i) => {
+    const pd = db[date] || {};
+    const done = ALL_KEYS.filter(k => pd[k]).length >= Math.floor(ALL_KEYS.length * 0.5);
+    const cls = date === TODAY ? 'wdot today' : (done ? 'wdot done' : 'wdot');
+    return `<div class="${cls}">${dayLabels[i]}</div>`;
+  }).join('');
+}
+
+// English script → Claude
+const CLAUDE_PROMPT_TEMPLATE = `아래는 오늘 영어 전화 수업에서 나눈 대화 스크립트야.
+다음 3가지를 분석해줘:
+
+1. **문법/어휘 오류** - 틀린 부분과 올바른 표현
+2. **더 자연스러운 표현** - 네이티브라면 어떻게 말했을지
+3. **오늘 연습할 3문장** - 위에서 수정된 표현으로 내가 반복 연습할 문장 3개
+
+---
+[스크립트]
+`;
+
+function analyzeScript() {
+  const script = document.getElementById('script-text').value.trim();
+  if (!script) { alert('스크립트를 먼저 붙여넣어 주세요.'); return; }
+  const prompt = CLAUDE_PROMPT_TEMPLATE + script;
+  navigator.clipboard.writeText(prompt).then(() => {
+    window.open('https://claude.ai/new', '_blank');
+    document.getElementById('copy-msg').style.display = 'block';
+    setTimeout(() => document.getElementById('copy-msg').style.display = 'none', 3000);
+  });
+}
+
+function copyPrompt() {
+  const script = document.getElementById('script-text').value.trim();
+  const prompt = CLAUDE_PROMPT_TEMPLATE + (script || '(스크립트를 여기에 붙여넣으세요)');
+  navigator.clipboard.writeText(prompt).then(() => {
+    document.getElementById('copy-msg').style.display = 'block';
+    setTimeout(() => document.getElementById('copy-msg').style.display = 'none', 3000);
+  });
+}
+
+// Chinese patterns — Google Sheets CSV
+const SHEET_ID = '1wlz_4PW9JqL14E34-oN6zHROIB-fpmefdX9fIC5Hez0';
+const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+
+let allPatterns = [];
+let currentPatternIdx = -1;
+let sheetsLoaded = false;
+
+function parseCSV(text) {
+  const lines = text.split('\n');
+  const results = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.replace(/^"|"$/g, '').trim());
+    const zh = cols[1] || '';
+    const kr = cols[2] || '';
+    const point = cols[3] || '';
+    if (zh) results.push({ zh, kr, point });
+  }
+  return results;
+}
+
+async function loadSheetsPatterns() {
+  const statusEl = document.getElementById('sheet-status');
+  if (statusEl) statusEl.textContent = '불러오는 중...';
+  try {
+    const res = await fetch(SHEET_CSV_URL);
+    if (!res.ok) throw new Error('fetch failed');
+    const text = await res.text();
+    allPatterns = parseCSV(text);
+    sheetsLoaded = true;
+    if (statusEl) statusEl.textContent = `구글시트에서 ${allPatterns.length}개 로드됨`;
+    document.getElementById('cn-total-badge').textContent = `총 ${allPatterns.length}개`;
+    document.getElementById('cn-count-badge').textContent = `${allPatterns.length}개 누적`;
+    if (allPatterns.length) nextPattern();
+    renderPatternList();
+  } catch(e) {
+    if (statusEl) statusEl.textContent = '로드 실패 — 시트 공개 설정을 확인해주세요';
+    if (statusEl) statusEl.style.color = 'var(--red)';
+  }
+}
+
+function nextPattern() {
+  if (!allPatterns.length) return;
+  document.getElementById('pattern-answer').classList.remove('show');
+  document.getElementById('pattern-pinyin').classList.remove('show');
+  let idx;
+  do { idx = Math.floor(Math.random() * allPatterns.length); } while (allPatterns.length > 1 && idx === currentPatternIdx);
+  currentPatternIdx = idx;
+  const p = allPatterns[idx];
+  document.getElementById('pattern-kr').textContent = p.kr || '(한국어 없음)';
+  document.getElementById('pattern-zh').textContent = p.zh;
+  document.getElementById('pattern-py').textContent = p.point || '';
+  document.getElementById('pattern-idx-label').textContent = `${idx + 1} / ${allPatterns.length} 번째 패턴`;
+}
+
+function showAnswer() {
+  document.getElementById('pattern-answer').classList.add('show');
+  if (document.getElementById('pattern-py').textContent) {
+    document.getElementById('pattern-pinyin').classList.add('show');
+  }
+}
+
+function renderPatternList() {
+  const listEl = document.getElementById('pattern-list');
+  if (!allPatterns.length) { listEl.innerHTML = '패턴을 불러오지 못했습니다.'; return; }
+  listEl.innerHTML = allPatterns.slice(0, 50).map((p, i) => `
+    <div style="padding:7px 0; border-bottom:0.5px solid var(--border);">
+      <div style="font-weight:500; color:var(--text); font-size:13px;">${p.kr || ''}</div>
+      <div style="color:var(--green); margin-top:2px; font-size:13px;">${p.zh}</div>
+      ${p.point ? `<div style="color:var(--text3); font-size:11px; margin-top:1px;">${p.point}</div>` : ''}
+    </div>
+  `).join('') + (allPatterns.length > 50 ? `<div style="font-size:11px; color:var(--text3); padding-top:8px;">+ ${allPatterns.length - 50}개 더 있음</div>` : '');
+}
+
+function renderPatterns() {
+  if (!sheetsLoaded) loadSheetsPatterns();
+  else renderPatternList();
+}
+
+// Timer
+let timerInterval = null;
+let timerRunning = false;
+let timerSeconds = 20 * 60;
+let timerTotal = 20 * 60;
+let timerElapsed = 0;
+
+function updateGoal(val) {
+  document.getElementById('goal-label').textContent = val + '분';
+  if (!timerRunning) {
+    timerSeconds = val * 60;
+    timerTotal = val * 60;
+    timerElapsed = 0;
+    renderTimerDisplay();
+  }
+}
+
+function renderTimerDisplay() {
+  const m = Math.floor(timerSeconds / 60);
+  const s = timerSeconds % 60;
+  document.getElementById('timer-display').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const circ = 314.2;
+  const offset = circ * (timerSeconds / timerTotal);
+  document.getElementById('timer-ring').setAttribute('stroke-dashoffset', Math.round(offset));
+}
+
+function timerToggle() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timer-btn').innerHTML = '<i class="ti ti-player-play"></i> 재개';
+    document.getElementById('timer-status').textContent = '일시정지';
+  } else {
+    timerRunning = true;
+    document.getElementById('timer-btn').innerHTML = '<i class="ti ti-player-pause"></i> 일시정지';
+    document.getElementById('timer-status').textContent = '독서 중...';
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      timerElapsed++;
+      localStorage.setItem('book_today_min', Math.round(timerElapsed / 60));
+      renderTimerDisplay();
+      if (timerSeconds <= 0) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timer-status').textContent = '완료! 🎉';
+        document.getElementById('timer-btn').innerHTML = '<i class="ti ti-check"></i> 완료';
+        // Auto-check book_done
+        const data = todayData();
+        data.book_done = true;
+        setToday(data);
+        syncAllCheckboxes();
+        updateProgress();
+        alert('독서 완료! 오늘도 잘하셨어요 📚');
+      }
+    }, 1000);
+  }
+}
+
+function timerReset() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  const goal = parseInt(document.getElementById('timer-goal').value);
+  timerSeconds = goal * 60;
+  timerTotal = goal * 60;
+  timerElapsed = 0;
+  document.getElementById('timer-btn').innerHTML = '<i class="ti ti-player-play"></i> 시작';
+  document.getElementById('timer-status').textContent = '준비';
+  renderTimerDisplay();
+}
+
+// News memo
+function saveMemo() {
+  const memo = document.getElementById('daily-memo').value;
+  const data = todayData();
+  data.memo = memo;
+  setToday(data);
+}
+
+function addKeyword() {
+  const input = document.getElementById('keyword-input');
+  const kw = input.value.trim();
+  if (!kw) return;
+  const data = todayData();
+  data.keywords = data.keywords || [];
+  if (!data.keywords.includes(kw)) data.keywords.push(kw);
+  setToday(data);
+  input.value = '';
+  renderKeywords();
+}
+
+function removeKeyword(kw) {
+  const data = todayData();
+  data.keywords = (data.keywords || []).filter(k => k !== kw);
+  setToday(data);
+  renderKeywords();
+}
+
+function renderKeywords() {
+  const data = todayData();
+  const chips = document.getElementById('keyword-chips');
+  const kws = data.keywords || [];
+  chips.innerHTML = kws.map(kw => `<button class="chip removable" onclick="removeKeyword('${kw}')">${kw}</button>`).join('');
+}
+
+function renderNews() {
+  const data = todayData();
+  // Restore memo
+  const memoEl = document.getElementById('daily-memo');
+  if (memoEl) memoEl.value = data.memo || '';
+  renderKeywords();
+
+  // Yesterday's keywords reminder
+  const yd = getDay(YESTERDAY);
+  const ykws = yd.keywords || [];
+  const reminderSection = document.getElementById('reminder-section');
+  if (ykws.length) {
+    reminderSection.style.display = 'block';
+    document.getElementById('yesterday-keywords').innerHTML = ykws.map(k => `<span class="chip">${k}</span>`).join('');
+    // Generate questions from keywords
+    const questions = ykws.map(k => `어제 키워드 <strong>"${k}"</strong>에 대해: 이 주제에서 가장 중요한 것 1가지는 뭐라고 생각하나요?`).join('<br>');
+    document.getElementById('reminder-text').innerHTML = questions;
+  } else {
+    reminderSection.style.display = 'none';
+  }
+
+  // Past memos
+  const db = getStore();
+  const pastDates = Object.keys(db).filter(d => d !== TODAY && db[d].memo).sort().reverse().slice(0, 5);
+  const pastEl = document.getElementById('past-memos');
+  if (!pastDates.length) { pastEl.textContent = '저장된 메모가 없습니다.'; return; }
+  pastEl.innerHTML = pastDates.map(date => `
+    <div style="margin-bottom: 10px; padding-bottom:10px; border-bottom:0.5px solid var(--border);">
+      <div style="font-size:11px; color:var(--text3); margin-bottom:4px;">${date}</div>
+      <div style="color:var(--text2); line-height:1.6;">${db[date].memo.slice(0,120)}${db[date].memo.length > 120 ? '...' : ''}</div>
+      ${(db[date].keywords||[]).length ? '<div style="margin-top:4px;">' + db[date].keywords.map(k=>`<span class="chip" style="font-size:10px;">${k}</span>`).join('') + '</div>' : ''}
+    </div>
+  `).join('');
+}
+
+function openClaudeReminder() {
+  const yd = getDay(YESTERDAY);
+  const kws = (yd.keywords || []).join(', ');
+  const prompt = `어제 내가 읽은 뉴스/아티클에서 이런 키워드들을 메모했어: ${kws}\n\n각 키워드에 대해 오늘 더 깊이 알면 좋은 배경 지식이나 관련 최신 흐름을 간단하게 알려줘. 각각 3-4문장으로.`;
+  navigator.clipboard.writeText(prompt).then(() => {
+    window.open('https://claude.ai/new', '_blank');
+  });
+}
+
+function renderHeatmap2() {
+  renderHeatmap();
+}
+
+// Init
+syncAllCheckboxes();
+updateProgress();
+renderTimerDisplay();
+renderHeatmap();
+renderStreak();
+</script>
+</body>
+</html>
